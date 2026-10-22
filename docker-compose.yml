@@ -1,9 +1,9 @@
-# "Deployment" on the laptop. For now it builds locally;
-# in Phase 6 we'll switch it to pull the image CI pushed to ghcr.io.
+# "Deployment" on the laptop: runs the image that the CD pipeline
+# published to ghcr.io, NOT a local build. Deploy with ./deploy.ps1
 services:
   app:
-    build: .
-    image: cicd-demo:local
+    # TAG defaults to "latest"; set TAG=<commit-sha> to deploy (or roll back to) an exact version.
+    image: ghcr.io/mobeen97-cloud/cicd-demo:${TAG:-latest}
     ports:
       - "3000:3000"
     restart: unless-stopped
