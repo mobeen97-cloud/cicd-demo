@@ -1,0 +1,42 @@
+# CD: publish the Docker image to GitHub Container Registry (ghcr.io).
+# It runs only AFTER the CI workflow finishes successfully on main,
+# so broken code is never published.
+name: CD
+
+on:
+  workflow_run:
+    workflows: [CI]
+    types: [completed]
+    branches: [main]
+
+jobs:
+  publish:
+    if: github.event.workflow_run.conclusion == 'success'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write   # allows GITHUB_TOKEN to push to ghcr.io
+    steps:
+      - name: Check out the exact commit CI tested
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.workflow_run.head_sha }}
+
+      - name: Log in to ghcr.io
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}   # built in, no secret to create
+
+      - name: Build and push image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: true
+          # Two tags: "latest" (newest) and the commit SHA (exact version, for rollback).
+          tags: |
+            ghcr.io/${{ github.repository }}:latest
+            ghcr.io/${{ github.repository }}:${{ github.event.workflow_run.head_sha }}
+          labels: |
+            org.opencontainers.image.source=https://github.com/${{ github.repository }}
