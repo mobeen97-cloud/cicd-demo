@@ -1,0 +1,9 @@
+# "Deployment" on the laptop. For now it builds locally;
+# in Phase 6 we'll switch it to pull the image CI pushed to ghcr.io.
+services:
+  app:
+    build: .
+    image: cicd-demo:local
+    ports:
+      - "3000:3000"
+    restart: unless-stopped

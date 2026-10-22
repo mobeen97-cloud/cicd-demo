@@ -1,0 +1,6 @@
+# Keep the image small: don't send these to the Docker build.
+node_modules
+coverage
+tests
+.git
+.github
