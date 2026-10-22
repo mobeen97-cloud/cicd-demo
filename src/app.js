@@ -16,7 +16,7 @@ app.get('/add', (req, res) => {
   if (Number.isNaN(a) || Number.isNaN(b)) {
     return res.status(400).json({ error: 'a and b must be numbers' });
   }
-  res.json({ result: a - b });
+  res.json({ result: a + b });
 });
 
 module.exports = app;
